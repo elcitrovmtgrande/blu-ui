@@ -3,7 +3,12 @@
     <template v-if="streamPermission">
     <div class="callui">
       <NetworkIndicator />
-      <div class="callui__video"></div>
+      <div class="callui__video">
+        <video
+          id="remoteVidPreview"
+          muted
+          autoplay></video>
+      </div>
       <div class="chat-open-btn" @click="onChatToggle">
         <fa :icon="chatIsOpen ? 'times' : 'comment-alt'" />
       </div>
@@ -50,6 +55,7 @@
 
 <script>
 import { NetworkIndicator } from '@/components';
+import config from '@/config';
 
 export default {
   name: 'Room',
@@ -61,23 +67,166 @@ export default {
       isMicOn: true,
       isCameraOn: true,
       chatIsOpen: false,
-      userStream: null,
-      userVideo: null,
       userVideoXL: false,
       streamPermission: true,
+      isRoomCreator: false,
+      rtcPeerConnection: null,
+      roomId: null,
+      localStream: null,
+      userVideo: null,
+      remoteStream: null,
+      remoteVideo: null,
     };
   },
   computed: {},
-  mounted() {
+  async mounted() {
+    const { roomId } = this.$route.params;
+    this.roomId = roomId;
     this.userVideo = document.getElementById('userVidPreview');
-    this.startUserVideo();
+    this.remoteVideo = document.getElementById('remoteVidPreview');
+    await this.initSocket();
+    this.joinRoom();
+    // this.startUserVideo();
   },
   methods: {
+    async initSocket() {
+      this.sockets.subscribe('room_created', async () => {
+        console.log('Socket event callback: room_created');
+
+        await this.setLocalStream(/* constraints */);
+        this.isRoomCreator = true;
+      });
+
+      this.sockets.subscribe('room_joined', async () => {
+        console.log('Socket event callback: room_joined');
+
+        await this.setLocalStream(/* constraints */);
+        this.$socket.emit('start_call', this.roomId);
+      });
+
+      this.sockets.subscribe('full_room', () => {
+        console.log('Socket event callback: full_room');
+
+        alert('The room is full, please try another one');
+      });
+
+      // SOCKET EVENT CALLBACKS =====================================================
+      this.sockets.subscribe('start_call', async () => {
+        console.log('Socket event callback: start_call');
+
+        if (this.isRoomCreator) {
+          this.rtcPeerConnection = new RTCPeerConnection(config.iceServers);
+          this.addLocalTracks(this.rtcPeerConnection);
+          this.rtcPeerConnection.ontrack = this.setRemoteStream;
+          this.rtcPeerConnection.onicecandidate = this.sendIceCandidate;
+          await this.createOffer(this.rtcPeerConnection);
+        }
+      });
+
+      this.sockets.subscribe('webrtc_offer', async (event) => {
+        console.log('Socket event callback: webrtc_offer');
+
+        if (!this.isRoomCreator) {
+          this.rtcPeerConnection = new RTCPeerConnection(config.iceServers);
+          this.addLocalTracks(this.rtcPeerConnection);
+          this.rtcPeerConnection.ontrack = this.setRemoteStream;
+          this.rtcPeerConnection.onicecandidate = this.sendIceCandidate;
+          this.rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event));
+          await this.createAnswer(this.rtcPeerConnection);
+        }
+      });
+
+      this.sockets.subscribe('webrtc_answer', (event) => {
+        console.log('Socket event callback: webrtc_answer');
+
+        this.rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event));
+      });
+
+      this.sockets.subscribe('webrtc_ice_candidate', (event) => {
+        console.log('Socket event callback: webrtc_ice_candidate');
+
+        // ICE candidate configuration.
+        const candidate = new RTCIceCandidate({
+          sdpMLineIndex: event.label,
+          candidate: event.candidate,
+        });
+        this.rtcPeerConnection.addIceCandidate(candidate);
+      });
+    },
+    async setLocalStream(/* constraints */) {
+      let stream;
+      const mediaConstraints = {
+        audio: true,
+        video: { width: 1280, height: 720 },
+      };
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(/* constraints */mediaConstraints);
+      } catch (error) {
+        console.error('Could not get user media', error);
+      }
+
+      this.localStream = stream;
+      this.userVideo.srcObject = stream;
+    },
+    async addLocalTracks(rtcPeerConnection) {
+      this.localStream.getTracks().forEach((track) => {
+        rtcPeerConnection.addTrack(track, this.localStream);
+      });
+    },
+    async createOffer(rtcPeerConnection) {
+      const { roomId } = this;
+      let sessionDescription;
+      try {
+        sessionDescription = await rtcPeerConnection.createOffer();
+        rtcPeerConnection.setLocalDescription(sessionDescription);
+      } catch (error) {
+        console.error(error);
+      }
+      this.$socket.emit('webrtc_offer', {
+        type: 'webrtc_offer',
+        sdp: sessionDescription,
+        roomId,
+      });
+    },
+    async createAnswer(rtcPeerConnection) {
+      const { roomId } = this;
+      let sessionDescription;
+      try {
+        sessionDescription = await rtcPeerConnection.createAnswer();
+        rtcPeerConnection.setLocalDescription(sessionDescription);
+      } catch (error) {
+        console.error(error);
+      }
+
+      this.$socket.emit('webrtc_answer', {
+        type: 'webrtc_answer',
+        sdp: sessionDescription,
+        roomId,
+      });
+    },
+    async setRemoteStream(event) {
+      // eslint-disable-next-line prefer-destructuring
+      this.remoteVideo.srcObject = event.streams[0];
+      this.remoteStream = event.stream;
+    },
+    async sendIceCandidate(event) {
+      const { roomId } = this;
+      if (event.candidate) {
+        this.$socket.emit('webrtc_ice_candidate', {
+          roomId,
+          label: event.candidate.sdpMLineIndex,
+          candidate: event.candidate.candidate,
+        });
+      }
+    },
+    joinRoom() {
+      this.$socket.emit('join', this.roomId);
+    },
     startUserVideo() {
       const video = this.userVideo;
       window.navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((stream) => {
-          this.userStream = stream;
+          this.localStream = stream;
           video.srcObject = stream;
           video.onloadedmetadata = (/* e */) => {
             video.play();
@@ -90,7 +239,7 @@ export default {
     stopUserVideo() {
       this.userVideo.pause();
       this.userVideo.src = '';
-      this.userStream.getTracks().find((track) => track.kind === 'video').stop();
+      this.localStream.getTracks().find((track) => track.kind === 'video').stop();
     },
     onMicToggle() {
       this.isMicOn = !this.isMicOn;
@@ -109,10 +258,10 @@ export default {
       }
     },
     startUserMic() {
-      this.userStream.getAudioTracks()[0].enabled = true;
+      this.localStream.getAudioTracks()[0].enabled = true;
     },
     stopUserMic() {
-      this.userStream.getAudioTracks()[0].enabled = false;
+      this.localStream.getAudioTracks()[0].enabled = false;
     },
     onChatToggle() {
       this.chatIsOpen = !this.chatIsOpen;
@@ -172,8 +321,14 @@ export default {
 
   &__video {
     width: 100%;
-    height: 100%;
     background: black;
+    min-height: 100vh;
+    // width: auto;
+    // height: auto;
+
+    video {
+      width: 100%;
+    }
   }
 
   &__chat {

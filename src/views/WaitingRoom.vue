@@ -4,12 +4,12 @@
     <p>Please type the id of the room you are looking for joining.</p>
     <div class="input">
       <input type="text" placeholder="eg: XYWY-UH-IHDI" v-model="roomId">
-      <button>Join</button>
+      <button @click="$router.push({ name: 'Room', params: { roomId } })">Join</button>
     </div>
     <div class="separator">
       <span>or</span>
     </div>
-    <button class="new-btn" @click="$router.push('room')">
+    <button class="new-btn" @click="$router.push({ name: 'room', params: { roomId } })">
       Create a new room
     </button>
   </div>

@@ -12,15 +12,15 @@ const routes = [
     component: Home,
   },
   {
-    path: '/room',
+    path: '/room/:roomId',
     name: 'Room',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Room.vue'),
+    component: () => import(/* webpackChunkName: "room" */ '../views/Room.vue'),
     // component: Room,
   },
   {
     path: '/waiting-room',
     name: 'WaitingRoom',
-    component: () => import(/* webpackChunkName: "about" */ '../views/WaitingRoom.vue'),
+    component: () => import(/* webpackChunkName: "waitingRoom" */ '../views/WaitingRoom.vue'),
     // component: Room,
   },
 ];
