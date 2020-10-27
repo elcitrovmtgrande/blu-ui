@@ -3,7 +3,7 @@
     <h1>Blü.</h1>
     <p>Please type the id of the room you are looking for joining.</p>
     <div class="input">
-      <input type="text" placeholder="eg: XYWY-UH-IHDI">
+      <input type="text" placeholder="eg: XYWY-UH-IHDI" v-model="roomId">
       <button>Join</button>
     </div>
     <div class="separator">
@@ -18,6 +18,11 @@
 <script>
 export default {
   name: 'WaitingRoom',
+  data() {
+    return {
+      roomId: '',
+    };
+  },
 };
 </script>
 
@@ -95,7 +100,7 @@ export default {
     padding-left: 20px;
     border-bottom: 1px solid white;
     background: inherit;
-
+    text-transform: uppercase;
   }
 
   button {

@@ -20,6 +20,7 @@
     "v-tooltip": "^2.0.3",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
+    "vue-socket.io": "^3.0.10",
     "vue-web-cam": "^1.9.0",
     "vuex": "^3.4.0"
   },

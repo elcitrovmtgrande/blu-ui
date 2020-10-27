@@ -7,6 +7,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import VTooltip from 'v-tooltip';
+import VueSocketIO from 'vue-socket.io';
+import config from '@/config';
 import App from './App.vue';
 import store from './store';
 import router from './router';
@@ -20,6 +22,18 @@ library.add(
 Vue.component('fa', FontAwesomeIcon);
 
 Vue.use(VTooltip);
+
+Vue.use(new VueSocketIO({
+  debug: true,
+  // connection: 'http://metinseylan.com:1992',
+  connection: config.socketAddress,
+  vuex: {
+    store,
+    actionPrefix: 'SOCKET_',
+    mutationPrefix: 'SOCKET_',
+  },
+  // options: { path: '/room' }, // Optional options
+}));
 
 Vue.config.productionTip = false;
 
