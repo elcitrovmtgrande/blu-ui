@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
-import Call from '../views/Call.vue';
+// import Room from '../views/Room.vue';
 
 Vue.use(VueRouter);
 
@@ -12,9 +12,10 @@ const routes = [
     component: Home,
   },
   {
-    path: '/call',
-    name: 'Home',
-    component: Call,
+    path: '/room',
+    name: 'Room',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Room.vue'),
+    // component: Room,
   },
 ];
 

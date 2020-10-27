@@ -4,18 +4,21 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </div> -->
-    <router-view/>
+    <transition name="slide" mode="out-in">
+      <router-view />
+    </transition>
   </div>
 </template>
 
 <style lang="scss">
-@import '@/theme';
+@import "@/theme";
 @font-face {
   font-family: "Pacifico";
-  src: local("Pacifico"),
-   url(./fonts/Pacifico-Regular.ttf) format("truetype");
+  src: local("Pacifico"), url(./fonts/Pacifico-Regular.ttf) format("truetype");
 }
-html, body, #app {
+html,
+body,
+#app {
   background: $deep-blue;
   margin: 0;
   width: 100%;
@@ -128,7 +131,7 @@ html, body, #app {
       color: black;
       padding: 24px;
       border-radius: 5px;
-      box-shadow: 0 5px 30px rgba(black, .1);
+      box-shadow: 0 5px 30px rgba(black, 0.1);
     }
 
     .popover-arrow {
@@ -136,16 +139,28 @@ html, body, #app {
     }
   }
 
-  &[aria-hidden='true'] {
+  &[aria-hidden="true"] {
     visibility: hidden;
     opacity: 0;
-    transition: opacity .15s, visibility .15s;
+    transition: opacity 0.15s, visibility 0.15s;
   }
 
-  &[aria-hidden='false'] {
+  &[aria-hidden="false"] {
     visibility: visible;
     opacity: 1;
-    transition: opacity .15s;
+    transition: opacity 0.15s;
   }
+}
+.slide-leave-active,
+.slide-enter-active {
+  transition: .25s;
+}
+.slide-enter {
+  transform: translate(100%, 0);
+  // opacity: 1;
+}
+.slide-leave-to {
+  // opacity: 0;
+  transform: translate(-100%, 0);
 }
 </style>

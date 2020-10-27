@@ -33,7 +33,7 @@
 import { NetworkIndicator } from '@/components';
 
 export default {
-  name: 'Call',
+  name: 'Room',
   components: {
     NetworkIndicator,
   },
@@ -91,7 +91,7 @@ export default {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    transition: width .25s ease;
+    transition: width .15s ease;
 
     &.open {
       width: 300px;
@@ -184,7 +184,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all .25s ease;
+  transition: all .15s ease;
 
   &:hover {
     cursor: pointer;
