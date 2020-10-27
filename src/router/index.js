@@ -17,6 +17,12 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/Room.vue'),
     // component: Room,
   },
+  {
+    path: '/waiting-room',
+    name: 'WaitingRoom',
+    component: () => import(/* webpackChunkName: "about" */ '../views/WaitingRoom.vue'),
+    // component: Room,
+  },
 ];
 
 const router = new VueRouter({

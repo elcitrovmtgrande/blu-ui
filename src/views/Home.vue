@@ -2,7 +2,7 @@
   <div class="page">
     <h1>Blü.</h1>
     <p>Calls made easy.</p>
-    <button @click="$router.push('room')">
+    <button @click="$router.push('waiting-room')">
       Launch
     </button>
   </div>
