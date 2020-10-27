@@ -10,7 +10,11 @@
 
 <style lang="scss">
 @import '@/theme';
-
+@font-face {
+  font-family: "Pacifico";
+  src: local("Pacifico"),
+   url(./fonts/Pacifico-Regular.ttf) format("truetype");
+}
 html, body, #app {
   background: $deep-blue;
   margin: 0;
