@@ -1,4 +1,4 @@
-# vision
+# Blü
 
 ## Project setup
 ```
