@@ -369,14 +369,15 @@ export default {
     transition: width .15s ease;
 
     &.open {
-      width: 300px;
+      width: 500px;
     }
 
     &--header {
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      background: white;
+      background: $blue;
+      color: white;
       height: 70px;
       padding-left: 30px;
       width: calc(100% - 30px);
@@ -390,6 +391,7 @@ export default {
       width: calc(100% - 40px);
       height: calc(100% - 70px - 150px);
       padding: 20px;
+      background: white;
       overflow: scroll;
       // background: yellow;
     }
@@ -400,6 +402,7 @@ export default {
       justify-content: center;
       width: 100%;
       height: 80px;
+      background: white;
       padding-bottom: 30px;
 
       input {
@@ -410,9 +413,11 @@ export default {
         padding-left: 10px;
         background: inherit;
         border: unset;
+        font-family: Avenir, Helvetica, Arial, sans-serif;;
         border-bottom: 2px solid $blue;
 
         &::placeholder {
+          font-family: Avenir, Helvetica, Arial, sans-serif;
           color: black;
         }
       }
@@ -506,7 +511,7 @@ export default {
   right: 10px;
   width: 50px;
   height: 50px;
-  background: $blue;
+  background: $blue-alt;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -519,7 +524,7 @@ export default {
   }
 
   svg {
-    color: white;
+    color: black;
   }
 }
 
