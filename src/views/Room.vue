@@ -16,6 +16,21 @@
         <div class="callui__chat--header">
           <h3>Messages</h3>
         </div>
+        <div class="callui__chat--messages">
+          <Message
+            v-for="(message, index) in messages"
+            :key="index"
+            :username="message.username"
+            :content="message.content"
+            :self="index % 2 === 0"
+            :date="message.date"/>
+        </div>
+        <div class="callui__chat--input">
+          <input type="text" placeholder="Type a message...">
+          <button>
+            <fa icon="paper-plane" />
+          </button>
+        </div>
       </div>
       <div :class="['callui__myvideo', {userVideoXL}]" @click="onUserVideoPreviewToggle">
         <!-- Ajouter l'attrbut 'controls' si on veut rajouter les controles du navigateur -->
@@ -54,13 +69,15 @@
 </template>
 
 <script>
-import { NetworkIndicator } from '@/components';
+import { NetworkIndicator, Message } from '@/components';
 import config from '@/config';
+import msg from '@/mocks/messages.json';
 
 export default {
   name: 'Room',
   components: {
     NetworkIndicator,
+    Message,
   },
   data() {
     return {
@@ -68,7 +85,7 @@ export default {
       isCameraOn: true,
       chatIsOpen: false,
       userVideoXL: false,
-      streamPermission: false,
+      streamPermission: true,
       isRoomCreator: false,
       rtcPeerConnection: null,
       roomId: null,
@@ -78,7 +95,11 @@ export default {
       remoteVideo: null,
     };
   },
-  computed: {},
+  computed: {
+    messages() {
+      return msg;
+    },
+  },
   async mounted() {
     const { roomId } = this.$route.params;
     this.roomId = roomId;
@@ -161,9 +182,9 @@ export default {
       };
       try {
         stream = await navigator.mediaDevices.getUserMedia(/* constraints */mediaConstraints);
-        if (stream && !this.streamPermission) {
-          this.streamPermission = true;
-        }
+        // if (stream && !this.streamPermission) {
+        //   this.streamPermission = true;
+        // }
       } catch (error) {
         console.error('Could not get user media', error);
       }
@@ -362,6 +383,51 @@ export default {
 
       .btn {
         margin-right: 20px;
+      }
+    }
+
+    &--messages {
+      width: calc(100% - 40px);
+      height: calc(100% - 70px - 150px);
+      padding: 20px;
+      overflow: scroll;
+      // background: yellow;
+    }
+
+    &--input {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      width: 100%;
+      height: 80px;
+      padding-bottom: 30px;
+
+      input {
+        width: calc(100% - 50px - 50px);
+        height: 50px;
+        margin: unset;
+        padding: unset;
+        padding-left: 10px;
+        background: inherit;
+        border: unset;
+        border-bottom: 2px solid $blue;
+
+        &::placeholder {
+          color: black;
+        }
+      }
+
+      button {
+        height: 50px;
+        width: 50px;
+        border: 2px solid $blue;
+        background: $blue;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+
+        svg {
+           color: white;
+        }
       }
     }
   }

@@ -4,6 +4,7 @@ import {
   faUserSecret, faMicrophone, faMicrophoneSlash,
   faVideo, faVideoSlash, faCommentAlt, faTimes,
   faPhoneAlt,
+  faPaperPlane,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import VTooltip from 'v-tooltip';
@@ -16,7 +17,7 @@ import router from './router';
 library.add(
   faUserSecret, faMicrophone, faMicrophoneSlash,
   faVideoSlash, faVideo, faCommentAlt, faTimes,
-  faPhoneAlt,
+  faPhoneAlt, faPaperPlane,
 );
 
 Vue.component('fa', FontAwesomeIcon);
