@@ -68,7 +68,7 @@ export default {
       isCameraOn: true,
       chatIsOpen: false,
       userVideoXL: false,
-      streamPermission: true,
+      streamPermission: false,
       isRoomCreator: false,
       rtcPeerConnection: null,
       roomId: null,
@@ -161,6 +161,9 @@ export default {
       };
       try {
         stream = await navigator.mediaDevices.getUserMedia(/* constraints */mediaConstraints);
+        if (stream && !this.streamPermission) {
+          this.streamPermission = true;
+        }
       } catch (error) {
         console.error('Could not get user media', error);
       }
@@ -323,8 +326,6 @@ export default {
     width: 100%;
     background: black;
     min-height: 100vh;
-    // width: auto;
-    // height: auto;
 
     video {
       width: 100%;
@@ -338,7 +339,7 @@ export default {
     z-index: 3;
     width: 0px;
     height: calc(100% - 100px);
-    background: $deep-blue;
+    background: $blue-alt;
     overflow: hidden;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -386,7 +387,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100px;
-    background: $ocean-blue;
+    background: $blue;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -400,7 +401,7 @@ export default {
 
       &:hover {
         cursor: pointer;
-        opacity: .7;
+        // opacity: .7;
       }
     }
 
@@ -410,7 +411,7 @@ export default {
       justify-content: center;
       width: 50px;
       height: 50px;
-      background: $green-emerald;
+      background: $blue-alt;
       border-radius: 5px;
       margin-right: 50px;
       margin-left: 50px;
@@ -418,7 +419,7 @@ export default {
 
       &:hover {
         cursor: pointer;
-        opacity: 0.5;
+        // opacity: 0.5;
       }
 
       &.option-disabled-by-user {
@@ -439,7 +440,7 @@ export default {
   right: 10px;
   width: 50px;
   height: 50px;
-  background: $deep-blue;
+  background: $blue;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -448,7 +449,7 @@ export default {
 
   &:hover {
     cursor: pointer;
-    opacity: .7;
+    // opacity: .7;
   }
 
   svg {
@@ -483,7 +484,7 @@ export default {
 
   &:hover {
     cursor: pointer;
-    opacity: .7;
+    // opacity: .7;
   }
 }
 

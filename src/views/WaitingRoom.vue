@@ -63,7 +63,7 @@ export default {
 
     &:hover {
       cursor: pointer;
-      opacity: .7;
+      // opacity: .7;
     }
   }
 }
@@ -78,7 +78,7 @@ export default {
   margin-top: 100px;
 
   span {
-    background: $deep-blue;
+    background: $blue;
     padding: 10px;
     color: white;
   }
@@ -118,7 +118,7 @@ export default {
 
     &:hover {
       cursor: pointer;
-      opacity: .7;
+      // opacity: .7;
     }
   }
 }
