@@ -1,6 +1,6 @@
 <template>
   <div :class="['message', {self}]">
-    <div class="message__header">
+    <div v-if="!noHeader" class="message__header">
       <span class="message__header--username">@{{ username }}</span>
       <span class="message__header--date">{{ displayDate}}</span>
     </div>
@@ -31,6 +31,16 @@ export default {
       required: false,
       defaultValue: false,
     },
+    noHeader: {
+      type: Boolean,
+      required: false,
+      defaultValue: false,
+    },
+  },
+  mounted() {
+    if (this.username === 'totorlezer0') {
+      console.log(this.noHeader);
+    }
   },
   computed: {
     displayDate() {
@@ -54,7 +64,7 @@ export default {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
 
     &--username {
       font-size: 14px;
@@ -72,13 +82,13 @@ export default {
   &__content {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     width: 100%;
     text-align: justify;
     font-size: 14px;
   }
 }
 .message.self .message__header, .message.self .message__content {
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 </style>

@@ -1,15 +1,25 @@
 <template>
   <div class="page">
-    <h1>Blü.</h1>
+    <h1>Blü</h1>
     <p>Please type the id of the room you are looking for joining.</p>
+    <div id="pseudoForm" class="input">
+      <label>Pseudo</label>
+      <input type="text" placeholder="Pseudo desired for this call (optional)" v-model="roomId">
+      <small>Who really cares ?</small>
+    </div>
     <div class="input">
-      <input type="text" placeholder="eg: XYWY-UH-IHDI" v-model="roomId">
+      <input type="text" placeholder="Room id" v-model="roomId">
       <button @click="$router.push({ name: 'Room', params: { roomId } })">Join</button>
     </div>
     <div class="separator">
       <span>or</span>
     </div>
-    <button class="new-btn" @click="$router.push({ name: 'room', params: { roomId } })">
+    <button
+      class="new-btn"
+      @click="$router.push({
+        name: 'room',
+        params: { roomId, username: this.username || 'unknown' }
+      })">
       Create a new room
     </button>
   </div>
@@ -97,7 +107,7 @@ export default {
     border-bottom: 1px solid white;
     border: unset;
     color: white;
-    padding-left: 20px;
+    padding-left: 10px;
     border-bottom: 1px solid white;
     background: inherit;
     text-transform: uppercase;
@@ -120,6 +130,37 @@ export default {
       cursor: pointer;
       // opacity: .7;
     }
+  }
+}
+
+#pseudoForm {
+  flex-direction: column;
+  // justify-content: flex-s;
+  align-items: flex-start;
+  height: unset;
+  min-height: 50px;
+  margin-bottom: 20px;
+
+  label {
+    font-weight: bold;
+  }
+
+  input {
+    height: 50px;
+    width: calc(100% - 10px);
+    color: white;
+    text-transform: none;
+
+    &::placeholder {
+      color: white;
+    }
+  }
+
+  small {
+    margin-top: 4px;
+    font-weight: bold;
+    font-size: 10px;
+    color: white;
   }
 }
 

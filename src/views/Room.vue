@@ -18,16 +18,21 @@
         </div>
         <div class="callui__chat--messages">
           <Message
-            v-for="(message, index) in messages"
+            v-for="(message, index) in messagesList"
             :key="index"
             :username="message.username"
             :content="message.content"
-            :self="index % 2 === 0"
+            :noHeader="message.noHeader"
+            :self="message.self"
             :date="message.date"/>
         </div>
         <div class="callui__chat--input">
-          <input type="text" placeholder="Type a message...">
-          <button>
+          <input
+            type="text"
+            placeholder="Type a message..."
+            v-model="currentMessage"
+            @keyup.enter="onMessageSend">
+          <button @click="onMessageSend">
             <fa icon="paper-plane" />
           </button>
         </div>
@@ -72,6 +77,7 @@
 import { NetworkIndicator, Message } from '@/components';
 import config from '@/config';
 import msg from '@/mocks/messages.json';
+import { cloneDeep } from 'lodash';
 
 export default {
   name: 'Room',
@@ -93,11 +99,30 @@ export default {
       userVideo: null,
       remoteStream: null,
       remoteVideo: null,
+      currentMessage: null,
+      username: this.$route.params.username,
+      messages: msg,
     };
   },
   computed: {
-    messages() {
-      return msg;
+    messagesList() {
+      const { messages } = this;
+      const messagesToDisplay = [];
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < messages.length; i++) {
+        const message = messages[i];
+        const previousMessage = messages[i - 1];
+        if (previousMessage && message.username === previousMessage.username) {
+          message.noHeader = true;
+        } else {
+          message.noHeader = false;
+        }
+        message.self = !!(message.username === this.username);
+        messagesToDisplay.push(message);
+        // ne marche pas
+        console.log(messagesToDisplay);
+      }
+      return messagesToDisplay;
     },
   },
   async mounted() {
@@ -131,7 +156,6 @@ export default {
         alert('The room is full, please try another one');
       });
 
-      // SOCKET EVENT CALLBACKS =====================================================
       this.sockets.subscribe('start_call', async () => {
         console.log('Socket event callback: start_call');
 
@@ -172,6 +196,12 @@ export default {
           candidate: event.candidate,
         });
         this.rtcPeerConnection.addIceCandidate(candidate);
+      });
+
+      this.sockets.subscribe('message', (event) => {
+        console.log('Socket event callback: message');
+        console.log('New message received into room:', event);
+        this.receiveMessage(event);
       });
     },
     async setLocalStream(/* constraints */) {
@@ -242,6 +272,33 @@ export default {
           candidate: event.candidate.candidate,
         });
       }
+    },
+    onMessageSend() {
+      const message = this.currentMessage;
+      this.sendMessage(message);
+    },
+    sendMessage(content) {
+      const { roomId, username, messages } = this;
+      const localMessages = cloneDeep(messages);
+      const message = {
+        username,
+        content,
+        date: new Date().toJSON(),
+      };
+      this.$socket.emit('message', {
+        roomId,
+        ...message,
+      });
+      localMessages.push(message);
+      this.messages = localMessages;
+      this.currentMessage = '';
+    },
+    receiveMessage(event) {
+      const messages = cloneDeep(this.messages);
+      const message = event;
+      delete message.roomId;
+      messages.push(message);
+      this.messages = messages;
     },
     joinRoom() {
       this.$socket.emit('join', this.roomId);
@@ -418,6 +475,7 @@ export default {
 
         &::placeholder {
           font-family: Avenir, Helvetica, Arial, sans-serif;
+          font-size: 14px;
           color: black;
         }
       }

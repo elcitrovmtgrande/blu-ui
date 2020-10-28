@@ -12,7 +12,7 @@ const routes = [
     component: Home,
   },
   {
-    path: '/room/:roomId',
+    path: '/room/:roomId/:username',
     name: 'Room',
     component: () => import(/* webpackChunkName: "room" */ '../views/Room.vue'),
     // component: Room,
