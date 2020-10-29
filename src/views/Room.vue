@@ -6,7 +6,6 @@
       <div class="callui__video">
         <video v-show="remoteUserIsStreaming"
           id="remoteVidPreview"
-          muted
           autoplay></video>
         <div class="callui__video__noRemoteVideo" v-show="!remoteUserIsStreaming">
           V
@@ -147,7 +146,13 @@ export default {
         this.isRoomCreator = true;
       });
 
-      this.sockets.subscribe('room_joined', async () => {
+      this.sockets.subscribe('room_joined', async (event) => {
+        console.log('new user in room');
+        const { username } = event;
+        if (username !== this.username) {
+          // console
+          this.remoteUserIsStreaming = true;
+        }
         console.log('Socket event callback: room_joined');
 
         await this.setLocalStream(/* constraints */);
@@ -327,7 +332,8 @@ export default {
       this.messages = messages;
     },
     joinRoom() {
-      this.$socket.emit('join', this.roomId);
+      const { roomId, username } = this;
+      this.$socket.emit('join', { roomId, username });
     },
     startUserVideo() {
       const { roomId, username, userVideo: video } = this;
