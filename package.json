@@ -1,12 +1,12 @@
 {
-  "name": "vision",
+  "name": "blu",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "vue-cli-service serve -s dist",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "publish": "sh publish.sh",
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",

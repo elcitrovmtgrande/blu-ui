@@ -1,0 +1,6 @@
+// Pour publier sur GitHub
+module.exports = {
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/blu-ui/'
+    : '/',
+};

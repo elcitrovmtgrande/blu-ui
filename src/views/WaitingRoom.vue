@@ -4,7 +4,7 @@
     <p>Please type the id of the room you are looking for joining.</p>
     <div id="pseudoForm" class="input">
       <label>Pseudo</label>
-      <input type="text" placeholder="Pseudo desired for this call (optional)" v-model="roomId">
+      <input type="text" placeholder="Pseudo desired for this call (optional)" v-model="username">
       <small>Who really cares ?</small>
     </div>
     <div class="input">
@@ -18,7 +18,7 @@
       class="new-btn"
       @click="$router.push({
         name: 'room',
-        params: { roomId, username: this.username || 'unknown' }
+        params: { roomId, username: username || 'unknown' }
       })">
       Create a new room
     </button>
@@ -31,6 +31,7 @@ export default {
   data() {
     return {
       roomId: '',
+      username: null,
     };
   },
 };
