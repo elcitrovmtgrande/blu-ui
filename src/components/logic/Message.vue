@@ -1,10 +1,14 @@
 <template>
   <div :class="['message', {self}]">
     <div v-if="!noHeader" class="message__header">
-      <span class="message__header--username">@{{ username }}</span>
+      <span class="message__header--username">{{ self ? 'You' : username }}</span>
       <span class="message__header--date">{{ displayDate}}</span>
     </div>
-    <div class="message__content">{{ content }}</div>
+    <div class="message__content">
+      <p>
+        {{ content }}
+      </p>
+    </div>
   </div>
 </template>
 
@@ -86,9 +90,27 @@ export default {
     width: 100%;
     text-align: justify;
     font-size: 14px;
+    background: $lightgrey;
+    max-width: 50%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+
+    p {
+      width: 100%;
+      overflow-wrap: break-word;
+      margin: unset;
+      text-align: left;
+    }
   }
 }
-.message.self .message__header, .message.self .message__content {
+.message.self, .message.self .message__header, .message.self .message__content {
   justify-content: flex-start;
+}
+.message.self {
+  align-items: flex-start;
+}
+.message.self .message__content {
+  background: $blue-alt;
 }
 </style>

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
-// import Room from '../views/Room.vue';
+import Room from '../views/Room.vue';
 
 Vue.use(VueRouter);
 
@@ -14,7 +14,7 @@ const routes = [
   {
     path: '/room/:roomId/:username',
     name: 'Room',
-    component: () => import(/* webpackChunkName: "room" */ '../views/Room.vue'),
+    component: Room,
     // component: Room,
   },
   {

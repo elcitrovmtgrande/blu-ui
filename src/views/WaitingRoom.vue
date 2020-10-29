@@ -9,17 +9,17 @@
     </div>
     <div class="input">
       <input type="text" placeholder="Room id" v-model="roomId">
-      <button @click="$router.push({ name: 'Room', params: { roomId } })">Join</button>
+      <button
+        @click="nav">
+        Join
+      </button>
     </div>
     <div class="separator">
       <span>or</span>
     </div>
     <button
       class="new-btn"
-      @click="$router.push({
-        name: 'room',
-        params: { roomId, username: username || 'unknown' }
-      })">
+      @click="nav">
       Create a new room
     </button>
   </div>
@@ -30,9 +30,15 @@ export default {
   name: 'WaitingRoom',
   data() {
     return {
-      roomId: '',
-      username: null,
+      roomId: 'toto',
+      username: 't',
     };
+  },
+  methods: {
+    nav() {
+      const { roomId, username } = this;
+      this.$router.push({ name: 'Room', params: { roomId, username } });
+    },
   },
 };
 </script>

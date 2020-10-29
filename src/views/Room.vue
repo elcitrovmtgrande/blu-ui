@@ -4,10 +4,13 @@
     <div class="callui">
       <NetworkIndicator />
       <div class="callui__video">
-        <video
+        <video v-show="remoteUserIsStreaming"
           id="remoteVidPreview"
           muted
           autoplay></video>
+        <div class="callui__video__noRemoteVideo" v-show="!remoteUserIsStreaming">
+          V
+        </div>
       </div>
       <div class="chat-open-btn" @click="onChatToggle">
         <fa :icon="chatIsOpen ? 'times' : 'comment-alt'" />
@@ -76,7 +79,6 @@
 <script>
 import { NetworkIndicator, Message } from '@/components';
 import config from '@/config';
-import msg from '@/mocks/messages.json';
 import { cloneDeep } from 'lodash';
 
 export default {
@@ -97,11 +99,13 @@ export default {
       roomId: null,
       localStream: null,
       userVideo: null,
+      localUserIsStreaming: false,
+      remoteUserIsStreaming: false,
       remoteStream: null,
       remoteVideo: null,
       currentMessage: null,
       username: this.$route.params.username,
-      messages: msg,
+      messages: [],
     };
   },
   computed: {
@@ -203,6 +207,18 @@ export default {
         console.log('New message received into room:', event);
         this.receiveMessage(event);
       });
+
+      this.sockets.subscribe('start_camera', (event) => {
+        console.log('Socket event callback: start_camera');
+        console.log('A user started his camera:', event);
+        this.onPeerStartCamera(event);
+      });
+
+      this.sockets.subscribe('stop_camera', (event) => {
+        console.log('Socket event callback: stop_camera');
+        console.log('A user stopped his camera:', event);
+        this.onPeerStopCamera(event);
+      });
     },
     async setLocalStream(/* constraints */) {
       let stream;
@@ -273,9 +289,19 @@ export default {
         });
       }
     },
+    onPeerStopCamera() {
+      this.remoteUserIsStreaming = false;
+    },
+    onPeerStartCamera() {
+      this.remoteUserIsStreaming = true;
+    },
     onMessageSend() {
       const message = this.currentMessage;
-      this.sendMessage(message);
+      if (message && message.replaceAll(' ', '').length > 0) {
+        this.sendMessage(message);
+      } else {
+        this.currentMessage = '';
+      }
     },
     sendMessage(content) {
       const { roomId, username, messages } = this;
@@ -304,23 +330,40 @@ export default {
       this.$socket.emit('join', this.roomId);
     },
     startUserVideo() {
-      const video = this.userVideo;
-      window.navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          this.localStream = stream;
-          video.srcObject = stream;
-          video.onloadedmetadata = (/* e */) => {
-            video.play();
-          };
-        })
-        .catch(() => {
-          this.streamPermission = false;
-        });
+      const { roomId, username, userVideo: video } = this;
+      if (!this.localStream) {
+        window.navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+          .then((stream) => {
+            this.localStream = stream;
+            video.srcObject = stream;
+            video.onloadedmetadata = (/* e */) => {
+              video.play();
+            };
+            this.localUserIsStreaming = true;
+          })
+          .catch(() => {
+            this.streamPermission = false;
+          });
+      } else {
+        this.localStream.getVideoTracks()[0].enabled = true;
+      }
+      this.$socket.emit('start_camera', {
+        roomId,
+        username,
+      });
     },
     stopUserVideo() {
+      const { roomId, username } = this;
       this.userVideo.pause();
       this.userVideo.src = '';
-      this.localStream.getTracks().find((track) => track.kind === 'video').stop();
+      // this.localStream.getTracks().find((track) => track.kind === 'video').stop();
+      console.log(this.localStream.getTracks());
+      this.localStream.getVideoTracks()[0].enabled = false;
+      this.localUserIsStreaming = false;
+      this.$socket.emit('stop_camera', {
+        roomId,
+        username,
+      });
     },
     onMicToggle() {
       this.isMicOn = !this.isMicOn;
@@ -401,12 +444,29 @@ export default {
   }
 
   &__video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     background: black;
     min-height: 100vh;
 
     video {
       width: 100%;
+    }
+
+    &__noRemoteVideo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 200px;
+      height: 200px;
+      border-radius: 5px;
+      background: $blue-alt;
+      color: white;
+      font-weight: bold;
+      font-size: 75px;
+      font-family: "Pacifico";
     }
   }
 
